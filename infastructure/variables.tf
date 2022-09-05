@@ -18,3 +18,4 @@ variable "EC2_AMI_ID" {
 variable "EC2_INSTANCE_TYPE" {
   default = "t2.micro"
 }
+
