@@ -1,9 +1,3 @@
-resource "null_resource" "check_env_vars" {
-  provisioner "local-exec" {
-    command = "python ../support-files/env.py"
-  }
-}
-
 # Creating the VPC where the linux instances will live
 resource "aws_vpc" "interview" {
   cidr_block           = "10.0.0.0/16"
