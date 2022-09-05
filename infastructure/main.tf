@@ -1,3 +1,4 @@
+
 # Creating the VPC where the linux instances will live
 resource "aws_vpc" "interview" {
   cidr_block           = "10.0.0.0/16"
@@ -9,7 +10,7 @@ resource "aws_vpc" "interview" {
 }
 
 # Creating a public subnet for the instances to communicate over internet
-resource "aws_subnet" "transefix-demo-subnet" {
+resource "aws_subnet" "transifex-demo-subnet" {
   vpc_id                  = aws_vpc.interview.id
   cidr_block              = "10.0.1.0/24"
   map_public_ip_on_launch = "true"
@@ -40,7 +41,7 @@ resource "aws_route_table" "transidex-route-table" {
 
 # Associating the route table with the public subnet that was created
 resource "aws_route_table_association" "transifex-rt-public-subnet" {
-  subnet_id      = aws_subnet.transefix-demo-subnet.id
+  subnet_id      = aws_subnet.transifex-demo-subnet.id
   route_table_id = aws_route_table.transidex-route-table.id
 }
 
@@ -87,15 +88,10 @@ resource "aws_security_group" "allow_web" {
   }
 }
 
-# Creating and storing the SSH keys which will be assigned to the EC2 instances
-resource "tls_private_key" "transifex" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
-}
-
+# Specifying SSH keys which will be assigned to the EC2 instances
 resource "aws_key_pair" "generated_key" {
-  key_name   = var.TLS_PRIVATE_KEY_NAME
-  public_key = tls_private_key.transifex.public_key_openssh
+  key_name   = "aws-key"
+  public_key = file("../keys/aws-key.pub")
 }
 
 # Creating a launch configuration
@@ -125,7 +121,7 @@ resource "aws_launch_configuration" "launch-config" {
 # Creating an Elastic LB which then will be attached to the Autoscaling Group
 resource "aws_elb" "transifex-lb" {
   name            = "transifex-lb"
-  subnets         = [aws_subnet.transefix-demo-subnet.id]
+  subnets         = [aws_subnet.transifex-demo-subnet.id]
   security_groups = [aws_security_group.allow_web.id]
   health_check {
     target              = "HTTP:80/"
@@ -150,6 +146,6 @@ resource "aws_autoscaling_group" "autoscaling-ec2-nginx" {
   min_size             = 2
   max_size             = 3
   name                 = "autoscaling-ec2-nginx"
-  vpc_zone_identifier  = [aws_subnet.transefix-demo-subnet.id]
+  vpc_zone_identifier  = [aws_subnet.transifex-demo-subnet.id]
 
 }
