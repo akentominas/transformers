@@ -4,6 +4,7 @@ resource "null_resource" "check_env_vars" {
   }
 }
 
+# Creating the VPC where the linux instances will live
 resource "aws_vpc" "interview" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_support   = "true"
@@ -13,6 +14,7 @@ resource "aws_vpc" "interview" {
   }
 }
 
+# Creating a public subnet for the instances to communicate over internet
 resource "aws_subnet" "transefix-demo-subnet" {
   vpc_id                  = aws_vpc.interview.id
   cidr_block              = "10.0.1.0/24"
@@ -23,11 +25,12 @@ resource "aws_subnet" "transefix-demo-subnet" {
   }
 }
 
-# Creating an Internet Gateway to communicate over internet. I was not able to ssh into the nodes.
+# Creating an Internet Gateway for the VPC to communicate over internet. I was not able to ssh into the nodes.
 resource "aws_internet_gateway" "transifex-demo-gtw" {
   vpc_id = aws_vpc.interview.id
 }
 
+# Creating routing table for the public subnets to reach to the internet
 resource "aws_route_table" "transidex-route-table" {
   vpc_id = aws_vpc.interview.id
 
@@ -41,11 +44,13 @@ resource "aws_route_table" "transidex-route-table" {
   }
 }
 
+# Associating the route table with the public subnet that was created
 resource "aws_route_table_association" "transifex-rt-public-subnet" {
   subnet_id      = aws_subnet.transefix-demo-subnet.id
   route_table_id = aws_route_table.transidex-route-table.id
 }
 
+# Creating security group in order to control web traffic
 resource "aws_security_group" "allow_web" {
   name        = "allow_web_traffic"
   description = "Allow TLS inbound traffic"
@@ -88,7 +93,19 @@ resource "aws_security_group" "allow_web" {
   }
 }
 
+# Creating and storing the SSH keys which will be assigned to the EC2 instances
+resource "tls_private_key" "transifex" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
 
+resource "aws_key_pair" "generated_key" {
+  key_name   = var.TLS_PRIVATE_KEY_NAME
+  public_key = tls_private_key.transifex.public_key_openssh
+}
+
+# Creating a launch configuration
+# It is used by autoscaling groups, and it provides the resources which will be created
 resource "aws_launch_configuration" "launch-config" {
 
   image_id      = var.EC2_AMI_ID
@@ -96,13 +113,14 @@ resource "aws_launch_configuration" "launch-config" {
 
   security_groups = [aws_security_group.allow_web.id]
 
-  key_name = "access-key"
+  key_name = aws_key_pair.generated_key.key_name
 
   user_data = <<-EOF
                  #!/bin/bash
                  sudo apt update
                  sudo apt install nginx -y
-                 printf '<body style="margin: 0 auto; font-family: Tahoma, Verdana, Arial, sans-serif;">\n<h1>Welcome to Transifex!</h1>\n<p>If you see this page, you are hired! &#128512;</p>\n<body>' > /var/www/html/index.nginx-debian.html
+                 printf '<body style="margin: 0 auto; font-family: Tahoma, Verdana, Arial, sans-serif; text-align: center; padding: 100px;">\n<h1>Welcome to Transifex!</h1>\n<p>If you see this page, you are hired! &#128512;</p>\n<body>' > /var/www/html/index.nginx-debian.html
+                 sudo systemctl enable nginx
                  sudo systemctl restart nginx
                  EOF
   lifecycle {
@@ -110,13 +128,34 @@ resource "aws_launch_configuration" "launch-config" {
   }
 }
 
+# Creating an Elastic LB which then will be attached to the Autoscaling Group
+resource "aws_elb" "transifex-lb" {
+  name            = "transifex-lb"
+  subnets         = [aws_subnet.transefix-demo-subnet.id]
+  security_groups = [aws_security_group.allow_web.id]
+  health_check {
+    target              = "HTTP:80/"
+    interval            = 30
+    timeout             = 3
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+  }
+  listener {
+    lb_port           = 80
+    lb_protocol       = "http"
+    instance_port     = 80
+    instance_protocol = "http"
+  }
+}
+
+
 resource "aws_autoscaling_group" "autoscaling-ec2-nginx" {
   launch_configuration = aws_launch_configuration.launch-config.name
+  load_balancers       = [aws_elb.transifex-lb.name]
   desired_capacity     = 2
   min_size             = 2
   max_size             = 3
   name                 = "autoscaling-ec2-nginx"
-
-  vpc_zone_identifier = [aws_subnet.transefix-demo-subnet.id]
+  vpc_zone_identifier  = [aws_subnet.transefix-demo-subnet.id]
 
 }

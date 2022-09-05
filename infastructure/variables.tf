@@ -19,3 +19,7 @@ variable "EC2_INSTANCE_TYPE" {
   default = "t2.micro"
 }
 
+variable "TLS_PRIVATE_KEY_NAME" {
+  default = "transifex"
+}
+

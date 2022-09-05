@@ -1,4 +1,4 @@
-output "test" {
-  description = "AMI of the IC2 Debian image"
-  value       = var.EC2_AMI_ID
+output "private_key" {
+  value     = tls_private_key.transifex.private_key_pem
+  sensitive = true
 }
