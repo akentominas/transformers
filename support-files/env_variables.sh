@@ -1,8 +1,8 @@
 #!/bin/bash
 
-export AWS_ACCESS_KEY="AKIA324KHVJIMKPUBTO7"
+export AWS_ACCESS_KEY=""
 echo "AWS_ACCESS_KEY populated"
 
-export AWS_SECRET_KEY="pCmVD6BXMsEEp/JEiC7abMEsFTl2QeHspTDSuYwq"
+export AWS_SECRET_KEY=""
 echo "AWS_SECRET_KEY populated"
 
