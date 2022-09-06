@@ -101,6 +101,15 @@ I would like to point out that in production, i would rather create an instance 
 ├── dir3
     └── #helper scripts
 
+.
+ * [tree-md](./tree-md)
+ * [infrastructure](./infrastructure)
+   * ex
+ * [keys](./keys)
+   * ex
+ * [support-files](./support-files)
+   * ex
+
 
 This is my first terraform project. However in software engineering the best practice is always maintain a well structured project for maintainability and readability.
 I have separated the terraform code, like the variables, provider and instrastructure provisioning code in files, inside the infrastructure directory 
