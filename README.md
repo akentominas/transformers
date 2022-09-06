@@ -107,7 +107,7 @@ I have separated the terraform code, like the variables, provider and instrastru
 
 #### SUPPORT FILES
 
-For the engineer's convenience i have added scripts which handles the necessary environment variables population, in order to read them from sensitive variables from the environment instead of hardcoding them to the project.
+For the engineer's convenience i have added scripts which handles the necessary environment variables population, in order to read the sensitive variables from the environment instead of hardcoding them to the project.
 I have added also a python script which checks if the env variables have populated succussfully. 
 
 MAINTAINERS
