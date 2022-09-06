@@ -93,14 +93,13 @@ I would like to point out that in production, i would rather create an instance 
 
 #### PROJECT STRUCTURE
 
-- transformers
-| # base project path
- - infrastructure
-|  # terraform code
- - keys
-|  # ssh keys directory
- - support-files
-|  # helper scripts
+├─ transformers
+├── infrastructure
+│   └── #terraform code
+├── keys
+│   └── #ssh keys directory
+├── dir3
+    └── #helper scripts
 
 
 This is my first terraform project. However in software engineering the best practice is always maintain a well structured project for maintainability and readability.
