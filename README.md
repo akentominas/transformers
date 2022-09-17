@@ -12,6 +12,7 @@ CONTENTS OF THIS FILE
 TRANSFORMERS
 ------
 
+This project is a AWS provisioning system using Terraform.
 
 PREREQUISITES
 -------------
