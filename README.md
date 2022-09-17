@@ -12,9 +12,6 @@ CONTENTS OF THIS FILE
 TRANSFORMERS
 ------
 
-Transformers is a Terraform infrastructure provisioning project prepared for the interview with Transifex.
-
-!!! Please head over this link [link](http://transifex-lb-1613401857.eu-central-1.elb.amazonaws.com/) to access the web page which is served by nginx (do not miss this step) !!!
 
 PREREQUISITES
 -------------
